@@ -1,11 +1,7 @@
 {
-  "name": "electron-vite-react",
-  "productName": "Electron",
-  "private": true,
-  "version": "2.1.0",
-  "description": "Vite React Electron boilerplate.",
-  "author": "草鞋没号 <308487730@qq.com>",
-  "license": "MIT",
+  "name": "marine-scheduler",
+  "description": "Project to automate schedule on marine website.",
+  "version": "0.0.1",
   "main": "dist-electron/electron/main/index.js",
   "scripts": {
     "dev": "vite",
@@ -14,24 +10,44 @@
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^2.1.0",
     "electron": "^21.1.0",
     "electron-builder": "^23.3.3",
+    "eslint": "^8.27.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.31.10",
+    "prettier": "^2.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sass": "^1.55.0",
     "typescript": "^4.8.4",
     "vite": "^3.2.2",
     "vite-electron-plugin": "^0.5.0",
     "vite-plugin-electron-renderer": "^0.10.2"
   },
+  "keywords": [],
+  "author": "asleeplevi",
+  "license": "ISC",
   "debug": {
     "env": {
       "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777"
     }
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.13",
+    "formik": "^2.2.9",
+    "localforage": "^1.10.0",
+    "match-sorter": "^6.3.1",
+    "puppeteer-core": "^19.2.2",
+    "react-router-dom": "^6.4.3",
+    "sort-by": "^1.2.0"
   }
 }

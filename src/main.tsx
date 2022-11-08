@@ -1,14 +1,14 @@
-import React from "react";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
 
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./samples/node-api";
-import "styles/index.css";
+import { router } from './routes'
+import './ipc/node-api'
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
-);
+)
 
-postMessage({ payload: "removeLoading" }, "*");
+postMessage({ payload: 'removeLoading' }, '*')
