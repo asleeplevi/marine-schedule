@@ -1,9 +1,9 @@
 import { Drawer, List, Stack } from '@mui/material'
 import WatchIcon from '@mui/icons-material/Monitor'
-import PageIcon from '@mui/icons-material/Pages'
+// import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { SidebarMenuItem } from './SidebarItem'
-
+import TodayIcon from '@mui/icons-material/Today'
 type SidebarProps = {
   drawerWidth: number
   isTabletSize: boolean
@@ -33,7 +33,7 @@ export const Sidebar = ({ drawerWidth, isTabletSize }: SidebarProps) => {
           <SidebarMenuItem
             title='Criar Agendamento'
             to='/'
-            icon={<PageIcon />}
+            icon={<TodayIcon />}
             withLegend={!isTabletSize}
           />
           <SidebarMenuItem
