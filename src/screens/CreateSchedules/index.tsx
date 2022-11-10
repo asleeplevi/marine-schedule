@@ -1,13 +1,14 @@
 import { NoTabsOpened } from '@/components/NoTabsOpened'
 import { TabsBar } from '@/components/Tabs'
-import { useTabs } from '@/hooks/useTabs'
+import { useScheduling } from '@/hooks/useScheduling'
+import { CreateSchedulesForm } from './Form'
 
 export const CreateSchedules = () => {
-  const { tabs } = useTabs()
+  const { tabs } = useScheduling()
   return (
     <div>
       <TabsBar />
-      {tabs.length === 0 ? <NoTabsOpened /> : <p>create schedules</p>}
+      {tabs.length === 0 ? <NoTabsOpened /> : <CreateSchedulesForm />}
     </div>
   )
 }

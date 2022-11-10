@@ -10,7 +10,7 @@ export type Scheduling = {
     nidom: string
     name: string
   }
-  forwadingAgent: {
+  forwardingAgent: {
     name: string
     identifier: string
   }

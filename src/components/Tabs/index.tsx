@@ -1,13 +1,13 @@
 import { Stack, IconButton, Box, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { AppBarTabItem } from './TabItem'
-import { useTabs } from '../../hooks/useTabs'
+import { useScheduling } from '@/hooks/useScheduling'
 
 type TabsBarProps = {}
 
 export const TabsBar = ({}: TabsBarProps) => {
   const { tabs, activeTab, handleAddNewTab, handleCloseTab, setActiveTab } =
-    useTabs()
+    useScheduling()
 
   return (
     <Box sx={{ position: 'relative', height: 40 }}>
@@ -22,12 +22,12 @@ export const TabsBar = ({}: TabsBarProps) => {
         }}
       />
       <Stack direction='row' height='100%' alignItems='flex-end' ml={2}>
-        {tabs.map((tab, index) => (
+        {tabs.map((_, index) => (
           <AppBarTabItem
             key={index}
             index={index}
             activeTab={activeTab}
-            title={tab.title}
+            title={`Agendamento ${index + 1}`}
             onChangeTab={newTab => setActiveTab(newTab)}
             onClose={tabIndex => handleCloseTab(tabIndex)}
           />

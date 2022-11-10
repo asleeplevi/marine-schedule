@@ -19,8 +19,8 @@ export const FAKE_ORGANIZATIONS = [
   },
 ]
 
-export function getOrganizations(): ApiResponseProps<
-  typeof FAKE_ORGANIZATIONS
-> {
+export type GetOrganizationsProps = ApiResponseProps<typeof FAKE_ORGANIZATIONS>
+
+export function getOrganizations(): GetOrganizationsProps {
   return { status: 'success', data: FAKE_ORGANIZATIONS, isCached: false }
 }

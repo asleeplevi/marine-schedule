@@ -6,11 +6,11 @@ type GetFowardingAgentProps = {
 }
 
 const FAKE_USERS = [
-  { identifier: '000000000', cnomecompleto: 'George Lucas' },
-  { identifier: '000000001', cnomecompleto: 'Bruce Wayne' },
-  { identifier: '000000002', cnomecompleto: 'Clark Kent' },
-  { identifier: '000000003', cnomecompleto: 'Luke Skywalker' },
-  { identifier: '000000004', cnomecompleto: 'Han Solo' },
+  { identifier: '000.000.000-00', cnomecompleto: 'George Lucas' },
+  { identifier: '000.000.000-01', cnomecompleto: 'Bruce Wayne' },
+  { identifier: '000.000.000-02', cnomecompleto: 'Clark Kent' },
+  { identifier: '000.000.000-03', cnomecompleto: 'Luke Skywalker' },
+  { identifier: '000.000.000-04', cnomecompleto: 'Han Solo' },
 ]
 
 export async function getFowardingAgent({
