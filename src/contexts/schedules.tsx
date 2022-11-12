@@ -8,6 +8,7 @@ type SchedulingContextProps = {
   handleCloseTab: (tabIndex: number) => void
   handleAddNewTab: () => void
   handleSaveChanges: (newSchedule: Scheduling, index: number) => void
+  handleSaveSchedules: () => void
 }
 
 export const SchedulingContext = createContext({} as SchedulingContextProps)
@@ -21,24 +22,26 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
   const [tabs, setTabs] = useState<Scheduling[]>([])
 
   const handleCloseTab = (tabIndex: number) => {
-    setTabs(prevTabs => prevTabs.filter((tab, index) => tabIndex !== index))
+    const newTabs = tabs.slice(0)
+    newTabs.splice(tabIndex, 1)
+    setTabs(newTabs)
     if (activeTab >= tabs.length - 1)
       setActiveTab(prevActiveTab => prevActiveTab - 1)
-    // localStorage.removeItem(`@form-tab=${activeTab}`)
+    localStorage.setItem('schedules', JSON.stringify(newTabs))
   }
 
   const handleAddNewTab = () => {
-    const emptyScheduling: Scheduling = {
+    const emptyScheduling = {
+      interesteds: [],
       forwardingAgent: {
         identifier: '',
         name: '',
       },
-      interesteds: [],
       organization: {
         name: '',
         nidom: '',
       },
-    }
+    } as Scheduling
     if (tabs.length === 0) setActiveTab(0)
     setTabs(prevTabs => [...prevTabs, emptyScheduling])
   }
@@ -51,11 +54,39 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
     }
   }
 
-  const handleSaveChanges = (scheduling: Scheduling, index: number) => {
+  async function getForwardingAgentName(scheduling: Scheduling) {
+    const identifier = scheduling.forwardingAgent?.identifier
+    const nidom = scheduling?.organization?.nidom
+
+    if (!nidom || !identifier) return
+
+    const { data } = await window.api.get.forwardingAgent({
+      identifier: identifier,
+      nidom: nidom,
+      validarAtivo: true,
+    })
+
+    return data.name
+  }
+
+  const handleSaveChanges = async (scheduling: Scheduling, index: number) => {
     const updatesSchedules = tabs.slice(0)
-    updatesSchedules.splice(index, 1, scheduling)
+
+    const agentName = await getForwardingAgentName(scheduling)
+    const updatedScheduling = {
+      ...scheduling,
+      forwardingAgent: {
+        ...scheduling.forwardingAgent,
+        name: agentName || '',
+      },
+    }
+    updatesSchedules.splice(index, 1, updatedScheduling)
     setTabs(updatesSchedules)
     window.localStorage.setItem('schedules', JSON.stringify(updatesSchedules))
+  }
+
+  const handleSaveSchedules = () => {
+    console.log(tabs)
   }
 
   useEffect(() => {
@@ -71,6 +102,7 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
         tabs,
         setActiveTab,
         handleSaveChanges,
+        handleSaveSchedules,
       }}
     >
       {children}
