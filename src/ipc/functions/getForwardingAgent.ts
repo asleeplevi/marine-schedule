@@ -3,6 +3,7 @@ import { ApiResponseProps } from '@/types/api'
 type GetFowardingAgentProps = {
   identifier: string
   nidom: string
+  validarAtivo: boolean
 }
 
 const FAKE_USERS = [
@@ -16,6 +17,7 @@ const FAKE_USERS = [
 export async function getFowardingAgent({
   identifier,
   nidom,
+  validarAtivo,
 }: GetFowardingAgentProps): Promise<ApiResponseProps<{ name: string }>> {
   // const type = identifier.replace(/\W+/gi, '').length > 11 ? 'CNPJ' : 'CPF'
   await new Promise(resolve => setTimeout(resolve, 3000))
