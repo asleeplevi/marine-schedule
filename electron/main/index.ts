@@ -17,6 +17,7 @@ process.env.PUBLIC = app.isPackaged
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
+import { Scrapper } from './puppeteer'
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
 
@@ -27,6 +28,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
   process.exit(0)
 }
+
+const scrapper = Scrapper()
 
 let win: BrowserWindow | null = null
 // Here, you can also use other preload
@@ -66,6 +69,7 @@ async function createWindow() {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
+  scrapper.start(false)
 }
 
 app.whenReady().then(createWindow)
@@ -108,4 +112,10 @@ ipcMain.handle('open-win', (event, arg) => {
     childWindow.loadURL(`${url}#${arg}`)
     // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
   }
+})
+
+// if(!scrapper)
+
+ipcMain.handle('scrapper', (event, arg) => {
+  return scrapper.get(arg)
 })
