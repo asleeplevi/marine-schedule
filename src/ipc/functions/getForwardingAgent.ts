@@ -4,6 +4,7 @@ type GetFowardingAgentProps = {
   identifier: string
   nidom: string
   validarAtivo: boolean
+  prefetch: boolean
 }
 
 const FAKE_USERS = [
@@ -24,6 +25,7 @@ export async function getFowardingAgent({
   identifier,
   nidom,
   validarAtivo = true,
+  prefetch = true,
 }: GetFowardingAgentProps): Promise<ApiResponseProps<{ name: string }>> {
   const identifierOnlyNumber = identifier.replace(/\W+/gi, '')
   if (identifierOnlyNumber.length < 11) throw new Error('CPF/CNPJ inválido')
@@ -31,7 +33,7 @@ export async function getFowardingAgent({
 
   const URL = `buscarcpfcnpj.php?nidom=${nidom}&ncpfcnpj=${identifier}&ctipodocto=${type}&lvalidaativo=${validarAtivo}`
   const URL_PREFETCH = `etapas.php?nidom=${nidom}&nacaoselecionada=1`
-  await window.electron.invoke('scrapper', URL_PREFETCH)
+  if (prefetch) await window.electron.invoke('scrapper', URL_PREFETCH)
   const responseText = await window.electron.invoke('scrapper', URL)
   const [response] = JSON.parse(responseText) as ScrapperResponse[]
 
