@@ -3,8 +3,9 @@ import { TabsBar } from '@/components/Tabs'
 import { useScheduling } from '@/hooks/useScheduling'
 import { CreateSchedulesForm } from './Form'
 import { useState, useEffect } from 'react'
-import { useMediaQuery, Box, Container, Button, Stack } from '@mui/material'
+import { useMediaQuery, Box, Button, Stack } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
+import { SavingSchedules } from '@/components/SavingSchedules'
 
 type StatusProps = 'changing-tab' | ''
 
@@ -12,11 +13,9 @@ const OPENED_BUTTON_WIDTH = 250
 const CLOSED_BUTTON_WIDTH = 45
 
 export const CreateSchedules = () => {
-  const { tabs, activeTab, handleSaveSchedules } = useScheduling()
+  const { tabs, activeTab } = useScheduling()
+  const [modal, setModal] = useState('')
   const [status, setStatus] = useState<StatusProps>('')
-
-  const isTabletSize = useMediaQuery('(max-width: 900px)')
-  const drawerWidth = isTabletSize ? 60 : 200
 
   useEffect(() => {
     ;(async () => {
@@ -56,7 +55,7 @@ export const CreateSchedules = () => {
               width: OPENED_BUTTON_WIDTH,
             },
           }}
-          onClick={handleSaveSchedules}
+          onClick={() => setModal('savingSchedules')}
           variant='contained'
           disableElevation
         >
@@ -64,14 +63,18 @@ export const CreateSchedules = () => {
             direction='row'
             height={25}
             position='absolute'
-            left={10}
+            right={10}
             gap={1.5}
           >
-            <SaveIcon />
             Salvar agendamentos
+            <SaveIcon />
           </Stack>
         </Button>
       </Box>
+      <SavingSchedules
+        open={modal === 'savingSchedules'}
+        onClose={() => setModal('')}
+      />
     </div>
   )
 }
