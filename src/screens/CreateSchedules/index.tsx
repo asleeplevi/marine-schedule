@@ -3,7 +3,7 @@ import { TabsBar } from '@/components/Tabs'
 import { useScheduling } from '@/hooks/useScheduling'
 import { CreateSchedulesForm } from './Form'
 import { useState, useEffect } from 'react'
-import { useMediaQuery, Box, Button, Stack } from '@mui/material'
+import { Box, Button, Stack } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { SavingSchedules } from '@/components/SavingSchedules'
 
