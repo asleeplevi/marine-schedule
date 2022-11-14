@@ -80,7 +80,7 @@ export const IntestedCard = ({
                   label='Serviço'
                   options={services[index] || []}
                   getOptionLabel={option => option.name}
-                  getOptionValue={option => option.name}
+                  getOptionValue={option => option?.name || ''}
                 />
               </Form>
             )}
