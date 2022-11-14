@@ -9,22 +9,30 @@ import {
   Typography,
   Box,
   Button,
+  CircularProgress,
+  IconButton,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { ScheduleAbstract } from './ScheduleContent'
 import { Calendar } from '../Calendar'
 import { Input } from '../Input'
 import { GetAvailableSchedulesResponseProps } from '@/ipc/functions/getAvailableScheduling'
+import { useLoading } from '@/hooks/useLoading'
+import CachedIcon from '@mui/icons-material/Cached'
 
 type SavingSchedulesProps = {
   open: boolean
   onClose: () => void
 }
 
+type LoadingOptionsProps = 'available-hours' | ''
+
 export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   const [activeStep, setActiveStep] = useState(0)
   const [captcha, setCaptcha] = useState('')
   const { tabs, handleSaveChanges } = useScheduling()
+
+  const { isLoading, setLoading } = useLoading<LoadingOptionsProps>()
 
   const [availableHours, setAvailableHours] = useState<
     GetAvailableSchedulesResponseProps[]
@@ -33,8 +41,19 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   const schedule = tabs[activeStep]
 
   async function getAvailableHours(date?: string) {
-    const { data } = await window.api.get.availableSchedules(date as string)
-    setAvailableHours(data)
+    setLoading('available-hours')
+    try {
+      const { data } = await window.api.get.availableSchedules({
+        date,
+        nidom: schedule.organization.nidom,
+        identifier: schedule.forwardingAgent.identifier,
+        interesteds: schedule.interesteds,
+      })
+      setAvailableHours(data)
+    } catch (error) {
+    } finally {
+      setLoading('available-hours', true)
+    }
   }
 
   const onChangeMonth = (newDate: string) => {
@@ -52,9 +71,9 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   }
 
   useEffect(() => {
+    if (!open) return
     getAvailableHours()
-    getCaptcha()
-  }, [])
+  }, [open])
 
   if (!schedule) return <div />
   return (
@@ -73,6 +92,20 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
               <ScheduleAbstract schedule={schedule} />
             </Section>
             <Section title='Selecionar data e hora para atendimento'>
+              {isLoading('available-hours') ? (
+                <Stack
+                  width='100%'
+                  height='100%'
+                  justifyContent='center'
+                  alignItems='center'
+                  position='absolute'
+                  left={0}
+                  top={0}
+                  bgcolor='#00000050'
+                >
+                  <CircularProgress color='inherit' />
+                </Stack>
+              ) : null}
               <Calendar
                 availableDays={availableHours}
                 onChangeMonth={onChangeMonth}
@@ -84,9 +117,13 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
               <Stack direction='row' gap={1} alignItems='end'>
                 <Box
                   sx={{
-                    width: 200,
+                    width: 'auto',
+                    minWidth: 180,
                     height: 100,
                     bgcolor: 'divider',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     img: {
                       width: '100%',
                       height: '100%',
@@ -94,10 +131,16 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
                     },
                   }}
                 >
-                  <img
-                    src={`data:image/png;base64, ${captcha}`}
-                    alt='Captcha'
-                  />
+                  {captcha ? (
+                    <img
+                      src={`data:image/png;base64, ${captcha}`}
+                      alt='Captcha'
+                    />
+                  ) : (
+                    <IconButton>
+                      <CachedIcon />
+                    </IconButton>
+                  )}
                 </Box>
                 <Input
                   withFormik={false}
@@ -134,7 +177,7 @@ type SectionProps = {
 
 const Section = ({ title, children }: SectionProps) => {
   return (
-    <Box sx={{ mb: 1 }}>
+    <Box sx={{ mb: 1, position: 'relative' }}>
       <Typography
         variant='body2'
         fontWeight='bold'
