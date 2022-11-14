@@ -3,7 +3,14 @@ import { TabsBar } from '@/components/Tabs'
 import { useScheduling } from '@/hooks/useScheduling'
 import { CreateSchedulesForm } from './Form'
 import { useState, useEffect } from 'react'
-import { Box, Button, Stack } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Container,
+  Stack,
+} from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { SavingSchedules } from '@/components/SavingSchedules'
 
@@ -18,10 +25,10 @@ export const CreateSchedules = () => {
   const [status, setStatus] = useState<StatusProps>('')
 
   useEffect(() => {
+    if (tabs.length <= 0) return
     ;(async () => {
       setStatus('changing-tab')
-      await new Promise(resolve => setTimeout(resolve, 10))
-
+      await new Promise(resolve => setTimeout(resolve, 100))
       setStatus('')
     })()
   }, [activeTab])
@@ -29,7 +36,15 @@ export const CreateSchedules = () => {
   return (
     <div>
       <TabsBar />
-      {status === 'changing-tab' && <p>carregando</p>}
+      {status === 'changing-tab' && tabs.length > 0 && (
+        <Container maxWidth='md' sx={{ pt: 2 }}>
+          <Card variant='outlined'>
+            <Stack height={280} justifyContent='center' alignItems='center'>
+              <CircularProgress color='inherit' />
+            </Stack>
+          </Card>
+        </Container>
+      )}
       {tabs.length <= 0 && <NoTabsOpened />}
       {tabs.length > 0 && status !== 'changing-tab' && <CreateSchedulesForm />}
       <Box
