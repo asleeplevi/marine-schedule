@@ -14,16 +14,28 @@ const FAKE_USERS = [
   { identifier: '000.000.000-04', cnomecompleto: 'Han Solo' },
 ]
 
+type ScrapperResponse = {
+  lvalido: boolean
+  lencontrado: boolean
+  cnomecompleto: string
+}
+
 export async function getFowardingAgent({
   identifier,
   nidom,
-  validarAtivo,
+  validarAtivo = true,
 }: GetFowardingAgentProps): Promise<ApiResponseProps<{ name: string }>> {
-  // const type = identifier.replace(/\W+/gi, '').length > 11 ? 'CNPJ' : 'CPF'
-  await new Promise(resolve => setTimeout(resolve, 3000))
-  const response = FAKE_USERS.find(user => user.identifier === identifier)
+  const identifierOnlyNumber = identifier.replace(/\W+/gi, '')
+  if (identifierOnlyNumber.length < 11) throw new Error('CPF/CNPJ inválido')
+  const type = identifierOnlyNumber.length > 11 ? 'CNPJ' : 'CPF'
 
-  if (!response) throw new Error('Usuário não encontrado')
+  const URL = `buscarcpfcnpj.php?nidom=${nidom}&ncpfcnpj=${identifier}&ctipodocto=${type}&lvalidaativo=${validarAtivo}`
+  const URL_PREFETCH = `etapas.php?nidom=${nidom}&nacaoselecionada=1`
+  await window.electron.invoke('scrapper', URL_PREFETCH)
+  const responseText = await window.electron.invoke('scrapper', URL)
+  const [response] = JSON.parse(responseText) as ScrapperResponse[]
+
+  if (!response.lencontrado) throw new Error('Usuário não encontrado')
 
   return {
     isCached: false,

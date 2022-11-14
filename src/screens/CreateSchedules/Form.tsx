@@ -3,7 +3,7 @@ import { Input } from '@/components/Input'
 import { InputMask } from '@/components/InputMask'
 import { useLoading } from '@/hooks/useLoading'
 import { useScheduling } from '@/hooks/useScheduling'
-import { GetOrganizationsProps } from '@/ipc/functions/getOrganizations'
+import { OrganizationsResponse } from '@/ipc/functions/getOrganizations'
 import { Scheduling } from '@/types/scheduling'
 import {
   Card,
@@ -13,9 +13,6 @@ import {
   TextField,
   Tooltip,
   IconButton,
-  Box,
-  Button,
-  useMediaQuery,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { Form, Formik } from 'formik'
@@ -29,9 +26,9 @@ export const CreateSchedulesForm = () => {
   const { isLoading, setLoading } = useLoading<LoadingOpts>()
 
   const [selectedOrgId, setSelectedOrgId] = useState('')
-  const [organizations, setOrganizations] = useState<
-    GetOrganizationsProps['data']
-  >([])
+  const [organizations, setOrganizations] = useState<OrganizationsResponse[]>(
+    []
+  )
   const [services, setServices] = useState<{ [key: number]: Services[] }>({})
 
   const { handleSaveChanges, activeTab, tabs } = useScheduling()

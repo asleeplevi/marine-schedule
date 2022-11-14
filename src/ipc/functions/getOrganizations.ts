@@ -1,26 +1,31 @@
 import { ApiResponseProps } from '@/types/api'
 
-export const FAKE_ORGANIZATIONS = [
-  {
-    name: 'Capitania 1',
-    nidom: '1',
-  },
-  {
-    name: 'Capitania 2',
-    nidom: '2',
-  },
-  {
-    name: 'Capitania 3',
-    nidom: '3',
-  },
-  {
-    name: 'Capitania 4',
-    nidom: '4',
-  },
-]
+export type OrganizationsResponse = {
+  name: string
+  nidom: string
+}
 
-export type GetOrganizationsProps = ApiResponseProps<typeof FAKE_ORGANIZATIONS>
+type ScrapperResponse = {
+  nidom: string
+  inicial: boolean
+  cnomedaom: string
+}
 
-export function getOrganizations(): GetOrganizationsProps {
-  return { status: 'success', data: FAKE_ORGANIZATIONS, isCached: false }
+export type GetOrganizationsProps = ApiResponseProps<OrganizationsResponse[]>
+
+export async function getOrganizations(): Promise<GetOrganizationsProps> {
+  const URL = '/mainpage.php'
+  const responseText = await window.electron.invoke('scrapper', URL)
+  const response = JSON.parse(responseText) as [{ oms: ScrapperResponse[] }]
+
+  const oms = response[0].oms
+
+  const formattedResponse = oms
+    .filter(om => !om.inicial)
+    .map(({ cnomedaom, nidom }) => ({
+      name: cnomedaom,
+      nidom,
+    }))
+
+  return { status: 'success', data: formattedResponse, isCached: false }
 }
