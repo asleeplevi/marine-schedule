@@ -17,9 +17,9 @@ declare global {
 
 const api = {
   get: {
-    organization: withCache(getOrganizations),
-    forwardingAgent: withCache(getFowardingAgent),
-    services: withCache(getServices),
+    organization: withCache(getOrganizations, 60 * 60 * 24 * 7), // 7 dias
+    forwardingAgent: withCache(getFowardingAgent, 60 * 60 * 1), // 1 hora
+    services: withCache(getServices, 60 * 60 * 1), // 1 hora
     availableSchedules: getAvailableSchedules,
     captcha: getCaptcha,
   },
