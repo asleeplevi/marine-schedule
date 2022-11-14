@@ -23,9 +23,18 @@ export const Modal = ({ open, onClose, children }: ModalProps) => {
           bgcolor='white'
           width='90vw'
           height='90vh'
-          borderRadius={2}
+          borderRadius={1}
           position='relative'
           overflow='auto'
+          sx={{
+            '::-webkit-scrollbar': {
+              width: 10,
+            },
+            '::-webkit-scrollbar-thumb': {
+              bgcolor: 'divider',
+              borderRadius: 2,
+            },
+          }}
         >
           <Box position='absolute' top={2} right={2}>
             <IconButton onClick={onClose}>

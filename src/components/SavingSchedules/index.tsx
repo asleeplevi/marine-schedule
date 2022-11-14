@@ -23,6 +23,7 @@ type SavingSchedulesProps = {
 
 export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   const [activeStep, setActiveStep] = useState(0)
+  const [captcha, setCaptcha] = useState('')
   const { tabs, handleSaveChanges } = useScheduling()
 
   const [availableHours, setAvailableHours] = useState<
@@ -44,8 +45,15 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
     handleSaveChanges({ ...schedule, date }, activeStep)
   }
 
+  const getCaptcha = async () => {
+    const { data } = window.api.get.captcha()
+
+    setCaptcha(data)
+  }
+
   useEffect(() => {
     getAvailableHours()
+    getCaptcha()
   }, [])
 
   if (!schedule) return <p>123</p>
@@ -74,13 +82,36 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
             </Section>
             <Section title='Verificação'>
               <Stack direction='row' gap={1} alignItems='end'>
-                <Box sx={{ width: 200, height: 100, bgcolor: 'divider' }} />
+                <Box
+                  sx={{
+                    width: 200,
+                    height: 100,
+                    bgcolor: 'divider',
+                    img: {
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                    },
+                  }}
+                >
+                  <img
+                    src={`data:image/png;base64, ${captcha}`}
+                    alt='Captcha'
+                  />
+                </Box>
                 <Input
                   withFormik={false}
                   name='Captcha'
                   label='Captcha'
                   sx={{ margin: 0 }}
                   fullWidth={false}
+                  defaultValue={schedule.captcha || ''}
+                  onBlur={({ target }) =>
+                    handleSaveChanges(
+                      { ...schedule, captcha: target.value || '' },
+                      activeStep
+                    )
+                  }
                 />
               </Stack>
             </Section>

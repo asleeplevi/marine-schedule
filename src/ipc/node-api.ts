@@ -1,6 +1,7 @@
 import { withCache } from '@/middlewares'
 import { ipcRenderer } from 'electron'
 import { getAvailableSchedules } from './functions/getAvailableScheduling'
+import { getCaptcha } from './functions/getCaptcha'
 import { getFowardingAgent } from './functions/getForwardingAgent'
 import { getOrganizations } from './functions/getOrganizations'
 import { getServices } from './functions/getServices'
@@ -20,6 +21,7 @@ const api = {
     forwardingAgent: withCache(getFowardingAgent),
     getServices: withCache(getServices),
     getAvailableSchedules: getAvailableSchedules,
+    captcha: getCaptcha,
   },
 }
 
