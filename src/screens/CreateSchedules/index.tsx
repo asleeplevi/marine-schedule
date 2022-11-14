@@ -73,6 +73,7 @@ export const CreateSchedules = () => {
           onClick={() => setModal('savingSchedules')}
           variant='contained'
           disableElevation
+          disabled={tabs.length <= 0}
         >
           <Stack
             direction='row'
