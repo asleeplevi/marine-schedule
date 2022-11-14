@@ -33,7 +33,7 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   const schedule = tabs[activeStep]
 
   async function getAvailableHours(date?: string) {
-    const { data } = await window.api.get.getAvailableSchedules(date as string)
+    const { data } = await window.api.get.availableSchedules(date as string)
     setAvailableHours(data)
   }
 

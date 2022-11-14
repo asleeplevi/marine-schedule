@@ -19,8 +19,8 @@ const api = {
   get: {
     organization: withCache(getOrganizations),
     forwardingAgent: withCache(getFowardingAgent),
-    getServices: withCache(getServices),
-    getAvailableSchedules: getAvailableSchedules,
+    services: withCache(getServices),
+    availableSchedules: getAvailableSchedules,
     captcha: getCaptcha,
   },
 }

@@ -62,7 +62,7 @@ export const CreateSchedulesForm = () => {
     fields: Scheduling['interesteds'][number],
     index: number
   ) => {
-    const { data } = await window.api.get.getServices({
+    const { data } = await window.api.get.services({
       gru: fields.gru,
       identifier: fields.identifier,
       nidom: initialValues.organization.nidom,
