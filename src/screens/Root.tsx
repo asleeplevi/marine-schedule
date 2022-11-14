@@ -4,7 +4,7 @@ import { Box, useMediaQuery } from '@mui/material'
 import { Outlet } from 'react-router-dom'
 
 export const Root = () => {
-  const isTabletSize = useMediaQuery('(max-width: 900px)')
+  const isTabletSize = useMediaQuery('(max-width: 1000px)')
   const drawerWidth = isTabletSize ? 60 : 200
   return (
     <SchedulingProvider>
