@@ -3,6 +3,9 @@
 //{"lretorno":true,"cmensagem":"","agenda":[{"ddata":"2022\/11\/22","ddatacompleta":"Ter\u00e7a-feira, 22 de Novembro de 2022","turnomanha":[{"choriarioinicial":"10:00","cidshorarios":"NzQvK3hka3Y2NFpkZGtGMXU3MWVnbTFnMklSbFlqb2NDTEhtWk9XbGNBTT0"},{"choriarioinicial":"10:30","cidshorarios":"aGNGVWRzbzl2ckxESVU3QlZqMEh4M1o5elVlcG5kVWVtKzJ4RmYyR0ZHRT0"}]},{"ddata":"2022\/11\/24","ddatacompleta":"Quinta-feira, 24 de Novembro de 2022","turnomanha":[{"choriarioinicial":"09:30","cidshorarios":"VFNYcVV3bVA5emQ5QVdYUGNZY0kzUFVHY0g2Ym9DNS9pbTV6eXJHY1g1VT0"},{"choriarioinicial":"10:00","cidshorarios":"NzQvK3hka3Y2NFpkZGtGMXU3MWVnbTFnMklSbFlqb2NDTEhtWk9XbGNBTT0"},{"choriarioinicial":"10:30","cidshorarios":"aGNGVWRzbzl2ckxESVU3QlZqMEh4M1o5elVlcG5kVWVtKzJ4RmYyR0ZHRT0"},{"choriarioinicial":"11:00","cidshorarios":"NkQxS25KaS9YZDZsaVR6eEpQblVqMkNmdlNPU3FVMkNzMlQvNW9wVXBZdz0"}]},{"ddata":"2022\/11\/28","ddatacompleta":"Segunda-feira, 28 de Novembro de 2022","turnomanha":[{"choriarioinicial":"08:30","cidshorarios":"b25kZ2Nqamh2UkVwNnltV1pIYmRXN24wdStZYWJSbkJPMGpaNlhmdkNBZz0"},{"choriarioinicial":"10:00","cidshorarios":"NzQvK3hka3Y2NFpkZGtGMXU3MWVnbTFnMklSbFlqb2NDTEhtWk9XbGNBTT0"},{"choriarioinicial":"10:30","cidshorarios":"aGNGVWRzbzl2ckxESVU3QlZqMEh4M1o5elVlcG5kVWVtKzJ4RmYyR0ZHRT0"},{"choriarioinicial":"11:00","cidshorarios":"NkQxS25KaS9YZDZsaVR6eEpQblVqMkNmdlNPU3FVMkNzMlQvNW9wVXBZdz0"}]},{"ddata":"2022\/11\/29","ddatacompleta":"Ter\u00e7a-feira, 29 de Novembro de 2022","turnomanha":[{"choriarioinicial":"08:30","cidshorarios":"b25kZ2Nqamh2UkVwNnltV1pIYmRXN24wdStZYWJSbkJPMGpaNlhmdkNBZz0"},{"choriarioinicial":"09:00","cidshorarios":"Z0Y0MlJOdngzZTZDeWlnd21XbWdJQUw4aUZCVnpXTlhLM0NnNkJkUEVMdz0"},{"choriarioinicial":"09:30","cidshorarios":"VFNYcVV3bVA5emQ5QVdYUGNZY0kzUFVHY0g2Ym9DNS9pbTV6eXJHY1g1VT0"},{"choriarioinicial":"10:00","cidshorarios":"NzQvK3hka3Y2NFpkZGtGMXU3MWVnbTFnMklSbFlqb2NDTEhtWk9XbGNBTT0"},{"choriarioinicial":"10:30","cidshorarios":"aGNGVWRzbzl2ckxESVU3QlZqMEh4M1o5elVlcG5kVWVtKzJ4RmYyR0ZHRT0"},{"choriarioinicial":"11:00","cidshorarios":"NkQxS25KaS9YZDZsaVR6eEpQblVqMkNmdlNPU3FVMkNzMlQvNW9wVXBZdz0"}]}]}
 
 import { ApiResponseProps } from '@/types/api'
+import { SchedulingInteresteds } from '@/types/scheduling'
+import { getFowardingAgent } from './getForwardingAgent'
+import { getServices } from './getServices'
 
 // Não funciona para pegar o mes atual somente os seguintes
 //https://sistemas.dpc.mar.mil.br/sisap/agendamento/server/agendadespachante.php?nidom=100&mes=11&ano=2022&cpfcnpjrepre=254.575.568-08
@@ -46,15 +49,82 @@ export type GetAvailableSchedulesResponseProps = {
   }
 }
 
-export async function getAvailableSchedules(
-  date: string
-): Promise<ApiResponseProps<GetAvailableSchedulesResponseProps[]>> {
+type GetAvailableSchedulesProps = {
+  date?: string
+  nidom: string
+  identifier: string
+  interesteds: SchedulingInteresteds[]
+}
+
+export async function getAvailableSchedules({
+  date,
+  identifier,
+  nidom,
+  interesteds,
+}: GetAvailableSchedulesProps): Promise<
+  ApiResponseProps<GetAvailableSchedulesResponseProps[]>
+> {
+  const [month, year] = String(date).split('/')
+
   let response: MarineResponseProps
-  if (date?.includes('11')) {
-    response = JSON.parse(AVAILABEL_HOURS_NEXT_MONTH) as MarineResponseProps
+
+  if (parseInt(month) === new Date().getMonth() || !date) {
+    const URL = `agendadespachante.php?nidom=${nidom}&cpfcnpjrepre=${identifier}`
+
+    const URL_PREFETCH = `etapas.php?nidom=${nidom}&nacaoselecionada=1`
+    await window.electron.invoke('scrapper', URL_PREFETCH)
+
+    const interestedsFowardingAgents = interesteds.map(interested => {
+      return getFowardingAgent({
+        nidom,
+        prefetch: false,
+        validarAtivo: false,
+        identifier: interested.identifier,
+      })
+    })
+    const interestedsServices = interesteds.map(interested => {
+      return getServices({
+        nidom,
+        identifier: interested.identifier,
+        gru: interested.gru,
+      })
+    })
+
+    await Promise.all([...interestedsFowardingAgents, ...interestedsServices])
+
+    const responseText = await window.electron.invoke('scrapper', URL)
+    console.log('[responseText]', responseText)
+    response = JSON.parse(responseText) as MarineResponseProps
   } else {
-    response = JSON.parse(AVAILABLE_HOUR_TODAY) as MarineResponseProps
+    const URL = `agendadespachante.php?nidom=${nidom}&mes=${month}&ano=${year}&cpfcnpjrepre=${identifier}`
+
+    const URL_PREFETCH = `etapas.php?nidom=${nidom}&nacaoselecionada=1`
+    await window.electron.invoke('scrapper', URL_PREFETCH)
+
+    const interestedsFowardingAgents = interesteds.map(interested => {
+      return getFowardingAgent({
+        nidom,
+        prefetch: false,
+        validarAtivo: false,
+        identifier: interested.identifier,
+      })
+    })
+    const interestedsServices = interesteds.map(interested => {
+      return getServices({
+        nidom,
+        identifier: interested.identifier,
+        gru: interested.gru,
+      })
+    })
+
+    await Promise.all([...interestedsFowardingAgents, ...interestedsServices])
+
+    const responseText = await window.electron.invoke('scrapper', URL)
+    console.log('[responseText - explicit month]', responseText)
+    response = JSON.parse(responseText) as MarineResponseProps
   }
+
+  if (!response.lretorno) throw new Error('Nenhuma agenda disponível')
 
   const formattedSchedule = response.agenda.map(schedule => ({
     date: schedule.ddata,
