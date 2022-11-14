@@ -15,4 +15,6 @@ export type Scheduling = {
     identifier: string
   }
   interesteds: SchedulingInteresteds[]
+  date?: Date
+  captcha?: string
 }
