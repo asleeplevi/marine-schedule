@@ -56,7 +56,7 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
     getCaptcha()
   }, [])
 
-  if (!schedule) return <p>123</p>
+  if (!schedule) return <div />
   return (
     <Modal open={open} onClose={onClose}>
       <Container sx={{ p: 2 }} maxWidth='lg'>
