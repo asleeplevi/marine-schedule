@@ -20,7 +20,7 @@ const api = {
     organization: withCache(getOrganizations, 60 * 60 * 24 * 7), // 7 dias
     forwardingAgent: withCache(getFowardingAgent, 60 * 60 * 1), // 1 hora
     services: withCache(getServices, 60 * 60 * 1), // 1 hora
-    availableSchedules: getAvailableSchedules,
+    availableSchedules: withCache(getAvailableSchedules, 60 * 10), // 10 min
     captcha: getCaptcha,
   },
 }
