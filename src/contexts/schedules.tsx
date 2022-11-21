@@ -64,6 +64,7 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
       identifier: identifier,
       nidom: nidom,
       validarAtivo: true,
+      prefetch: true,
     })
 
     return data.name

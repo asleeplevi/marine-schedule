@@ -84,6 +84,7 @@ export const CreateSchedulesForm = () => {
         nidom: initialValues.organization.nidom,
         identifier: fields.identifier,
         validarAtivo: false,
+        prefetch: true,
       })
 
       const fieldsWithName = {

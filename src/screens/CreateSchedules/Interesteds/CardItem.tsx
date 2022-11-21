@@ -81,6 +81,9 @@ export const IntestedCard = ({
                   options={services[index] || []}
                   getOptionLabel={option => option.name}
                   getOptionValue={option => option?.name || ''}
+                  defaultValue={services[index]?.find(
+                    service => service.name === interested?.service
+                  )}
                 />
               </Form>
             )}

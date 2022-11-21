@@ -10,11 +10,12 @@ import {
   CircularProgress,
   Container,
   Stack,
+  Typography,
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { SavingSchedules } from '@/components/SavingSchedules'
 
-type StatusProps = 'changing-tab' | ''
+type StatusProps = 'changing-tab' | 'ready' | 'starting-scrapper' | ''
 
 const OPENED_BUTTON_WIDTH = 250
 const CLOSED_BUTTON_WIDTH = 45
@@ -24,18 +25,38 @@ export const CreateSchedules = () => {
   const [modal, setModal] = useState('')
   const [status, setStatus] = useState<StatusProps>('')
 
+  const schedule = tabs[activeTab]
+
+  function startPuppeteer() {
+    window.electron.invoke('start-scrapper', false)
+    setStatus('ready')
+  }
+
   useEffect(() => {
     if (tabs.length <= 0) return
     ;(async () => {
       setStatus('changing-tab')
       await new Promise(resolve => setTimeout(resolve, 100))
-      setStatus('')
+      setStatus('ready')
     })()
   }, [activeTab])
 
+  useEffect(() => {
+    startPuppeteer()
+  }, [])
+
   return (
     <div>
-      <TabsBar />
+      {status === 'starting-scrapper' && (
+        <Container maxWidth='md' sx={{ pt: 2 }}>
+          <Card variant='outlined'>
+            <Stack height={280} justifyContent='center' alignItems='center'>
+              <Typography>Iniciando robo...</Typography>
+            </Stack>
+          </Card>
+        </Container>
+      )}
+      {status === 'ready' && <TabsBar />}
       {status === 'changing-tab' && tabs.length > 0 && (
         <Container maxWidth='md' sx={{ pt: 2 }}>
           <Card variant='outlined'>
@@ -46,7 +67,7 @@ export const CreateSchedules = () => {
         </Container>
       )}
       {tabs.length <= 0 && <NoTabsOpened />}
-      {tabs.length > 0 && status !== 'changing-tab' && <CreateSchedulesForm />}
+      {tabs.length > 0 && status === 'ready' && <CreateSchedulesForm />}
       <Box
         sx={{
           position: 'fixed',
@@ -71,6 +92,11 @@ export const CreateSchedules = () => {
             },
           }}
           onClick={() => setModal('savingSchedules')}
+          // onClick={() =>
+          //   window.electron.invoke('schedule', {
+          //     organization: schedule.organization.name,
+          //   })
+          // }
           variant='contained'
           disableElevation
           disabled={tabs.length <= 0}
