@@ -28,7 +28,9 @@ export const CreateSchedules = () => {
   const schedule = tabs[activeTab]
 
   function startPuppeteer() {
-    window.electron.invoke('start-scrapper', false)
+    const showScrapper =
+      window.localStorage.getItem('settings@show-scrapper') === 'true'
+    window.electron.invoke('start-scrapper', showScrapper ? false : true)
     setStatus('ready')
   }
 
@@ -92,11 +94,6 @@ export const CreateSchedules = () => {
             },
           }}
           onClick={() => setModal('savingSchedules')}
-          // onClick={() =>
-          //   window.electron.invoke('schedule', {
-          //     organization: schedule.organization.name,
-          //   })
-          // }
           variant='contained'
           disableElevation
           disabled={tabs.length <= 0}

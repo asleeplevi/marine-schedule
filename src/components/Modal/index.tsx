@@ -20,7 +20,7 @@ export const Modal = ({ open, onClose, children }: ModalProps) => {
     >
       <Grow in={open} unmountOnExit>
         <Stack
-          bgcolor='white'
+          bgcolor='background.paper'
           width='90vw'
           height='90vh'
           borderRadius={1}
@@ -34,6 +34,7 @@ export const Modal = ({ open, onClose, children }: ModalProps) => {
               bgcolor: 'divider',
               borderRadius: 2,
             },
+            color: 'text.primary',
           }}
         >
           <Box position='absolute' top={2} right={2}>

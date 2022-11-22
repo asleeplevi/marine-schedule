@@ -33,7 +33,7 @@ export const AppBarTabItem = ({
         borderColor: 'divider',
         width: 180,
         height: 35,
-        backgroundColor: '#fff',
+        backgroundColor: 'background.paper',
         borderBottom: activeTab === index ? '#fff' : 'divider',
         position: 'relative',
         zIndex: 2,
@@ -43,9 +43,10 @@ export const AppBarTabItem = ({
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
         userSelect: 'none',
+        color: activeTab === index ? 'text.primary' : 'text.secondary',
       }}
     >
-      <Typography variant='caption'>{title}</Typography>
+      <Typography variant='body2'>{title}</Typography>
       <IconButton size='small' onClick={handleCloseTab}>
         <CloseIcon sx={{ fontSize: 15 }} />
       </IconButton>
