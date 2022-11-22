@@ -139,7 +139,6 @@ export const Calendar = ({
       day => day.date === fullCurrentDate(selectedDay as number)
     ) as GetAvailableSchedulesResponseProps
     return today?.hours
-    // return []
   }
 
   const currentDayFormatted = new Date(

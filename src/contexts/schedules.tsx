@@ -7,8 +7,8 @@ type SchedulingContextProps = {
   setActiveTab: (tabIndex: number) => void
   handleCloseTab: (tabIndex: number) => void
   handleAddNewTab: () => void
+  clearTabs: () => void
   handleSaveChanges: (newSchedule: Scheduling, index: number) => void
-  handleSaveSchedules: () => void
 }
 
 export const SchedulingContext = createContext({} as SchedulingContextProps)
@@ -20,6 +20,12 @@ type SchedulingProviderProps = {
 export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
   const [activeTab, setActiveTab] = useState(-1)
   const [tabs, setTabs] = useState<Scheduling[]>([])
+
+  const clearTabs = () => {
+    setActiveTab(-1)
+    setTabs([])
+    localStorage.removeItem('schedules')
+  }
 
   const handleCloseTab = (tabIndex: number) => {
     const newTabs = tabs.slice(0)
@@ -86,10 +92,6 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
     window.localStorage.setItem('schedules', JSON.stringify(updatesSchedules))
   }
 
-  const handleSaveSchedules = () => {
-    console.log(tabs)
-  }
-
   useEffect(() => {
     recreateTabs()
   }, [])
@@ -103,7 +105,7 @@ export const SchedulingProvider = ({ children }: SchedulingProviderProps) => {
         tabs,
         setActiveTab,
         handleSaveChanges,
-        handleSaveSchedules,
+        clearTabs,
       }}
     >
       {children}

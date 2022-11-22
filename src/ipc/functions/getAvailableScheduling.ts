@@ -93,7 +93,6 @@ export async function getAvailableSchedules({
     await Promise.all([...interestedsFowardingAgents, ...interestedsServices])
 
     const responseText = await window.electron.invoke('scrapper', URL)
-    console.log('[responseText]', responseText)
     response = JSON.parse(responseText) as MarineResponseProps
   } else {
     const URL = `agendadespachante.php?nidom=${nidom}&mes=${month}&ano=${year}&cpfcnpjrepre=${identifier}`
@@ -120,7 +119,6 @@ export async function getAvailableSchedules({
     await Promise.all([...interestedsFowardingAgents, ...interestedsServices])
 
     const responseText = await window.electron.invoke('scrapper', URL)
-    console.log('[responseText - explicit month]', responseText)
     response = JSON.parse(responseText) as MarineResponseProps
   }
 

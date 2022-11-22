@@ -20,6 +20,7 @@ import { GetAvailableSchedulesResponseProps } from '@/ipc/functions/getAvailable
 import { useLoading } from '@/hooks/useLoading'
 import { Section } from './Section'
 import { StartScheduleScrapper } from './StartScheduleScrapper'
+import { useAlert } from '@/hooks/useAlert'
 
 type SavingSchedulesProps = {
   open: boolean
@@ -34,9 +35,11 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   const [activeStep, setActiveStep] = useState(0)
   const [captcha, setCaptcha] = useState('')
   const [status, setStatus] = useState<StatusProps>('incomplete')
-  const { tabs, handleSaveChanges } = useScheduling()
+  const [creatingsScheduleStatus, setCreatingsScheduleStatus] = useState('')
+  const { tabs, handleSaveChanges, clearTabs } = useScheduling()
 
   const { isLoading, setLoading } = useLoading<LoadingOptionsProps>()
+  const { createAlert } = useAlert()
 
   const [availableHours, setAvailableHours] = useState<
     GetAvailableSchedulesResponseProps[]
@@ -69,9 +72,18 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   }
 
   const handlePreCreateSchedule = async () => {
-    console.log('[schedule]', schedule)
-    const captchaImage = await window.electron.invoke('schedule', schedule)
-    setCaptcha(captchaImage)
+    try {
+      const captchaImage = await window.electron.invoke('schedule', schedule)
+      setCaptcha(captchaImage)
+    } catch (error) {
+      createAlert({
+        title: 'Erro ao iniciar agendamento',
+        message:
+          'Não foi possível preencher todas as etapas do seu agendamento, verifique se todos os campos estão preenchidos corretamente.',
+        severity: 'error',
+      })
+      setCreatingsScheduleStatus('')
+    }
   }
 
   const handleRenewCaptcha = async () => {
@@ -80,18 +92,58 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   }
 
   const handleSaveSchedule = async () => {
-    await window.electron.invoke('fill-captcha', schedule.captcha)
-    setActiveStep(prevStep => prevStep + 1)
-    if (activeStep >= tabs.length) onClose()
+    try {
+      await window.electron.invoke('fill-captcha', schedule.captcha)
+
+      const finishedSchedules = localStorage.getItem('schedules-finished')
+
+      if (finishedSchedules) {
+        const parsedSchedules = JSON.parse(finishedSchedules)
+        localStorage.setItem(
+          'schedules-finished',
+          JSON.stringify([...parsedSchedules, schedule])
+        )
+      } else {
+        localStorage.setItem('schedules-finished', JSON.stringify([schedule]))
+      }
+
+      setActiveStep(prevStep => prevStep + 1)
+      createAlert({
+        title: 'Agendamento realizado com sucesso!',
+        message: 'Agendamento foi movido para a área de agendados.',
+        severity: 'success',
+      })
+
+      if (activeStep + 1 == tabs.length) {
+        onClose()
+        clearTabs()
+      }
+    } catch (error) {
+      createAlert({
+        title: 'Algo deu errado',
+        message: 'Verifique se o captcha foi preenchido corretamente.',
+        severity: 'error',
+      })
+    }
   }
+
+  useEffect(() => {
+    window.electron.receive('creating-schedule-status', (status: string) => {
+      setCreatingsScheduleStatus(status)
+    })
+  }, [])
 
   useEffect(() => {
     if (!open) return
     getAvailableHours()
     setActiveStep(0)
+    setCaptcha('')
+    setStatus('incomplete')
   }, [open])
 
   useEffect(() => {
+    if (!open) return
+
     if (status === 'incomplete') {
       if (schedule?.date) {
         setStatus('completed')
@@ -100,10 +152,13 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
   }, [schedule])
 
   useEffect(() => {
+    if (!open) return
     setStatus('incomplete')
     setAvailableHours([])
     getAvailableHours()
+    setCaptcha('')
   }, [activeStep])
+
   if (!schedule) return <div />
 
   return (
@@ -144,6 +199,7 @@ export const SavingSchedules = ({ open, onClose }: SavingSchedulesProps) => {
               />
             </Section>
             <StartScheduleScrapper
+              creatingsScheduleStatus={creatingsScheduleStatus}
               activeStep={activeStep}
               handleRenewCaptcha={handleRenewCaptcha}
               handlePreCreateSchedule={handlePreCreateSchedule}

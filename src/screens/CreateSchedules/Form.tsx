@@ -128,7 +128,7 @@ export const CreateSchedulesForm = () => {
 
   if (organizations.length <= 0) return <p>...</p>
   return (
-    <Container maxWidth='md' sx={{ pt: 2 }}>
+    <Container maxWidth='md' sx={{ py: 2 }}>
       <Card variant='outlined'>
         <CardTitle
           title='Cadastrar agendamento'

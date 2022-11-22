@@ -1,13 +1,3 @@
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.js    > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
 process.env.DIST_ELECTRON = join(__dirname, '../..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged
@@ -17,6 +7,7 @@ process.env.PUBLIC = app.isPackaged
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
+import { createFileRoute, createURLRoute } from 'electron-router-dom'
 import { Scrapper } from './scrapper'
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -37,12 +28,13 @@ const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
 
-async function createWindow() {
+async function createWindow(id: string) {
   win = new BrowserWindow({
-    title: 'Main window',
+    title: 'Agendamento Marinha',
     icon: join(process.env.PUBLIC, 'favicon.svg'),
     width: 920,
     height: 650,
+    autoHideMenuBar: true,
     webPreferences: {
       preload,
       nodeIntegration: true,
@@ -50,13 +42,17 @@ async function createWindow() {
     },
   })
 
+  scrapper.setMainWindow(win)
+
   if (process.env.VITE_DEV_SERVER_URL) {
+    const devServerURL = createURLRoute(url!, id)
     // electron-vite-vue#298
-    win.loadURL(url)
+    win.loadURL(devServerURL)
     // Open devTool if the app is not packaged
     win.webContents.openDevTools({ mode: 'undocked', activate: true })
   } else {
-    win.loadFile(indexHtml)
+    const fileRoute = createFileRoute(indexHtml, id)
+    win.loadFile(...fileRoute)
   }
 
   // Test actively push message to the Electron-Renderer
@@ -71,7 +67,7 @@ async function createWindow() {
   })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => createWindow('main'))
 
 app.on('window-all-closed', () => {
   win = null
@@ -91,7 +87,7 @@ app.on('activate', () => {
   if (allWindows.length) {
     allWindows[0].focus()
   } else {
-    createWindow()
+    createWindow('main')
   }
 })
 
@@ -112,8 +108,6 @@ ipcMain.handle('open-win', (event, arg) => {
     // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
   }
 })
-
-// if(!scrapper)
 
 ipcMain.handle('start-scrapper', (_, headless: boolean) => {
   return scrapper.start(headless)

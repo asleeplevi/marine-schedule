@@ -1,8 +1,15 @@
 import { Section } from './Section'
-import { Typography, Stack, Box, IconButton, Button } from '@mui/material'
+import {
+  Typography,
+  Stack,
+  Box,
+  IconButton,
+  Button,
+  CircularProgress,
+} from '@mui/material'
 import { Input } from '../Input'
 import { Scheduling } from '@/types/scheduling'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CachedIcon from '@mui/icons-material/Cached'
 import { StatusProps } from '.'
 
@@ -11,6 +18,7 @@ type StartScheduleScrapperProps = {
   activeStep: number
   status: StatusProps
   captcha: string
+  creatingsScheduleStatus: string
   handlePreCreateSchedule: () => void
   handleRenewCaptcha: () => void
   handleSaveChanges: (scheduling: Scheduling, activeStep: number) => void
@@ -24,6 +32,7 @@ export const StartScheduleScrapper = ({
   status,
   captcha,
   handleRenewCaptcha,
+  creatingsScheduleStatus,
 }: StartScheduleScrapperProps) => {
   if (status === 'incomplete')
     return (
@@ -41,7 +50,22 @@ export const StartScheduleScrapper = ({
         </Stack>
       </Section>
     )
-  if (status === 'completed' && captcha === '')
+
+  if (creatingsScheduleStatus !== '')
+    return (
+      <Section title='Verificação'>
+        <Stack direction='column' alignItems='center' pt={4} pb={8}>
+          <Typography variant='body2'>{creatingsScheduleStatus}</Typography>
+          <CircularProgress sx={{ mt: 3, color: 'text.primary' }} />
+        </Stack>
+      </Section>
+    )
+
+  if (
+    status === 'completed' &&
+    captcha === '' &&
+    creatingsScheduleStatus === ''
+  )
     return (
       <Section title='Verificação'>
         <Stack direction='column' alignItems='center' pt={4} pb={8}>

@@ -1,3 +1,4 @@
+import { BrowserWindow, ipcMain } from 'electron'
 import puppeteer, { Browser, Page } from 'puppeteer-core'
 
 type SchedulingInteresteds = {
@@ -28,6 +29,11 @@ export class Scrapper {
   private page?: Page
   private BASE_URL = 'https://sistemas.dpc.mar.mil.br/sisap/agendamento/'
   private status: StatusScrapper = 'closed'
+  private mainWindow: BrowserWindow
+
+  setMainWindow(newWindow: BrowserWindow) {
+    this.mainWindow = newWindow
+  }
 
   private async delay(time: number) {
     await new Promise(resolve => setTimeout(resolve, time))
@@ -355,18 +361,6 @@ export class Scrapper {
     return response.toString()
   }
 
-  async createSchedule(schedule: Scheduling) {
-    await this.selectOrganizationAndClickOnSchedule(schedule.organization.name)
-    await this.agreeRulesAndClickOnNext()
-    await this.fillRepresentativeDataAndClickNext(
-      schedule.forwardingAgent.identifier
-    )
-    await this.addInterestedAndClickNext(schedule.interesteds)
-    await this.selectDateAnClickNext(new Date(schedule.date))
-
-    return await this.getCaptcha()
-  }
-
   async renewCaptcha() {
     const page = this.page
     if (!page) return
@@ -402,5 +396,31 @@ export class Scrapper {
     await checkbox?.click()
 
     await page.type('#captchainput input', text, { delay: 150 })
+    // const nextButton = await page.waitForSelector('.stepper-button.next')
+    // await nextButton?.click()
+  }
+
+  async createSchedule(schedule: Scheduling) {
+    if (!schedule.date) throw new Error('Data não especificada')
+    const emitStatusMessage = (message: string) =>
+      this.mainWindow.webContents.send('creating-schedule-status', message)
+
+    emitStatusMessage('Selecionando capitania')
+    await this.selectOrganizationAndClickOnSchedule(schedule.organization.name)
+    emitStatusMessage('Concordando com os termos')
+    await this.agreeRulesAndClickOnNext()
+    emitStatusMessage('Preenchendo dados do representante')
+    await this.fillRepresentativeDataAndClickNext(
+      schedule.forwardingAgent.identifier
+    )
+    emitStatusMessage('Preenchendo dados dos interessados')
+    await this.addInterestedAndClickNext(schedule.interesteds)
+    emitStatusMessage('Selecionando data e hora')
+    await this.selectDateAnClickNext(new Date(schedule.date))
+
+    emitStatusMessage('Carregando captcha')
+    const captcha = await this.getCaptcha()
+    emitStatusMessage('')
+    return captcha
   }
 }

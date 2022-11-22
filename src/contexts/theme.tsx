@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 
 type ModeProps = 'dark' | 'light'
 
@@ -20,6 +20,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     const newMode = mode === 'light' ? 'dark' : 'light'
     setMode(newMode)
   }
+
+  useEffect(() => {
+    const defaultTheme = window.localStorage.getItem('settings@theme') as string
+    if (defaultTheme) setMode(defaultTheme as ModeProps)
+  }, [])
 
   return (
     <ThemeContext.Provider value={{ mode, setMode, toggleMode }}>
