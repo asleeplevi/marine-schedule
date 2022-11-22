@@ -396,8 +396,8 @@ export class Scrapper {
     await checkbox?.click()
 
     await page.type('#captchainput input', text, { delay: 150 })
-    // const nextButton = await page.waitForSelector('.stepper-button.next')
-    // await nextButton?.click()
+    const nextButton = await page.waitForSelector('.stepper-button.next')
+    await nextButton?.click()
   }
 
   async createSchedule(schedule: Scheduling) {
