@@ -29,7 +29,7 @@ export class Scrapper {
   private page?: Page
   private BASE_URL = 'https://sistemas.dpc.mar.mil.br/sisap/agendamento/'
   private status: StatusScrapper = 'closed'
-  private mainWindow: BrowserWindow
+  private mainWindow?: BrowserWindow
 
   setMainWindow(newWindow: BrowserWindow) {
     this.mainWindow = newWindow
@@ -401,9 +401,11 @@ export class Scrapper {
   }
 
   async createSchedule(schedule: Scheduling) {
+    const mainWindow = this.mainWindow
+    if (!mainWindow) throw new Error('Janela principal não encontrada')
     if (!schedule.date) throw new Error('Data não especificada')
     const emitStatusMessage = (message: string) =>
-      this.mainWindow.webContents.send('creating-schedule-status', message)
+      mainWindow.webContents.send('creating-schedule-status', message)
 
     emitStatusMessage('Selecionando capitania')
     await this.selectOrganizationAndClickOnSchedule(schedule.organization.name)
